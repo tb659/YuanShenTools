@@ -70,7 +70,7 @@ namespace YuanShenTools
             _autoSkipService = new AutoSkipService(ExecuteScriptAsync);
             _autoSkipService.StatusChanged += (_, enabled) =>
             {
-                Title = enabled ? "原神跟跑 [自动跳过: ON]" : "原神跟跑 [自动跳过: OFF]";
+                Title = enabled ? "原神跟跑 [对话: 开]" : "原神跟跑 [对话: 关]";
             };
 
             RegisterHotkeys();
@@ -141,9 +141,10 @@ namespace YuanShenTools
         private async void MakePageTransparent()
         {
             var o = (Opacity * 0.9 + 0.1).ToString("F2");
+            var b = ((Opacity * 0.9 + 0.1)).ToString("F2");
             var js = $@"
 document.documentElement.style.opacity = '{o}';
-document.body.style.backgroundColor = 'rgba(255,255,255,0.3)';
+document.body.style.backgroundColor = 'rgba(255,255,255,{b})';
 var s = document.createElement('style');
 s.id = '__ys_style';
 s.textContent = 'html, #app, .bili-video-page {{ background: transparent !important; }}';

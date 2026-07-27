@@ -23,24 +23,24 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" Background="#55000000" Cursor="SizeAll" MouseLeftButtonDown="LegendGrid_MouseDown">
+        <Grid Grid.Row="0" Background="#88000000" Cursor="SizeAll" MouseLeftButtonDown="LegendGrid_MouseDown">
             <TextBlock x:Name="LegendText" Text="` 播放/暂停 | 5 后退10s | 6 前进10s | 7 透明度- | 8 透明度+ | 9 隐藏 | 0 沉浸 关 | - 跳过 | + 书签"
                        Foreground="#AAAAAA" FontSize="11" Margin="6,6,6,2" TextTrimming="CharacterEllipsis"/>
         </Grid>
 
-        <Grid Grid.Row="1" Background="#66000000">
+        <Grid Grid.Row="1" Background="#88000000">
             <DockPanel Margin="4,2" LastChildFill="True">
                 <Button DockPanel.Dock="Right" x:Name="CloseButton" Content="✕" Width="22" Margin="2,0,0,0" Click="CloseButton_Click"
-                        Background="#88000000" Foreground="White" BorderThickness="0" FontSize="11"/>
+                        Background="#AA000000" Foreground="White" BorderThickness="0" FontSize="11"/>
                 <Button DockPanel.Dock="Right" x:Name="MaxButton" Content="□" Width="20" Margin="2,0,0,0" Click="MaxButton_Click"
-                        Background="#66000000" Foreground="White" BorderThickness="0" FontSize="10"/>
+                        Background="#88000000" Foreground="White" BorderThickness="0" FontSize="10"/>
                 <Button DockPanel.Dock="Right" x:Name="MinButton" Content="—" Width="20" Margin="2,0,0,0" Click="MinButton_Click"
-                        Background="#66000000" Foreground="White" BorderThickness="0" FontSize="10"/>
+                        Background="#88000000" Foreground="White" BorderThickness="0" FontSize="10"/>
                 <Button DockPanel.Dock="Right" x:Name="GoButton" Content="Go" Width="36" Margin="2,0,0,0" Click="GoButton_Click"
-                        Background="#88000000" Foreground="White" BorderThickness="0"/>
+                        Background="#AA000000" Foreground="White" BorderThickness="0"/>
                 <TextBox x:Name="UrlTextBox" Text="https://www.bilibili.com" 
                          FontSize="13" BorderThickness="0"
-                         Background="#66000000" Foreground="White"
+                         Background="#88000000" Foreground="White"
                          KeyDown="UrlTextBox_KeyDown"/>
             </DockPanel>
         </Grid>
