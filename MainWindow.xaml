@@ -1,0 +1,41 @@
+﻿<Window x:Class="YuanShenTools.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        Title="原神跟跑" Height="360" Width="480"
+        Topmost="True"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        ResizeMode="CanResizeWithGrip"
+        Background="Transparent"
+        Opacity="0.6"
+        WindowStartupLocation="CenterScreen"
+        Loaded="Window_Loaded"
+        Closing="Window_Closing">
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="0" ResizeBorderThickness="6" GlassFrameThickness="0"/>
+    </WindowChrome.WindowChrome>
+    <Grid Background="Transparent">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Background="#66000000" MouseLeftButtonDown="DragBar_MouseDown">
+            <DockPanel Margin="4,2">
+                <Button x:Name="GoButton" Content="Go" Width="40" Margin="2,0,0,0" Click="GoButton_Click"
+                        Background="#88000000" Foreground="White" BorderThickness="0"/>
+                <TextBox x:Name="UrlTextBox" Text="https://www.bilibili.com" 
+                         FontSize="13" BorderThickness="0"
+                         Background="#66000000" Foreground="White"
+                         KeyDown="UrlTextBox_KeyDown"/>
+            </DockPanel>
+        </Grid>
+        <Grid Grid.Row="1" Background="#40000000"
+              MouseDown="WebViewGrid_MouseDown"
+              MouseWheel="WebViewGrid_MouseWheel"
+              MouseMove="WebViewGrid_MouseMove"
+              Cursor="Arrow">
+            <wv2:WebView2 x:Name="WebView"/>
+        </Grid>
+    </Grid>
+</Window>
