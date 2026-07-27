@@ -132,10 +132,10 @@ namespace YuanShenTools
             var o = (Opacity * 0.9 + 0.1).ToString("F2");
             var js = $@"
 document.documentElement.style.opacity = '{o}';
-document.body.style.backgroundColor = 'transparent';
+document.body.style.backgroundColor = 'rgba(255,255,255,0.3)';
 var s = document.createElement('style');
 s.id = '__ys_style';
-s.textContent = 'html, body, #app, .bili-video-page {{ background: transparent !important; }}';
+s.textContent = 'html, #app, .bili-video-page {{ background: transparent !important; }}';
 var old = document.getElementById('__ys_style');
 if (old) old.remove();
 document.head.appendChild(s);
@@ -351,6 +351,10 @@ document.head.appendChild(s);
                 (int)newLeft, (int)newTop, (int)newWidth, (int)newHeight,
                 SWP_NOZORDER);
         }
+
+        private void MinButton_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
+        private void MaxButton_Click(object sender, RoutedEventArgs e) =>
+            WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
 
         private void GoButton_Click(object sender, RoutedEventArgs e) => NavigateToUrl();
         private void UrlTextBox_KeyDown(object sender, KeyEventArgs e)

@@ -18,15 +18,25 @@
     <Grid Background="Transparent">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" Background="#66000000">
+        <Grid Grid.Row="0" Background="#55000000">
+            <TextBlock Text="` 播放/暂停 | 5 后退10s | 6 前进10s | 7 透明度- | 8 透明度+ | 9 隐藏 | 0 书签 | - 跳过对话"
+                       Foreground="#AAAAAA" FontSize="11" Margin="6,2" TextTrimming="CharacterEllipsis"/>
+        </Grid>
+
+        <Grid Grid.Row="1" Background="#66000000">
             <DockPanel Margin="4,2">
                 <Border Width="24" MouseLeftButtonDown="DragBar_MouseDown" Cursor="SizeAll"
                         Background="#88000000" Margin="0,0,2,0">
                     <TextBlock Text="⠿" Foreground="#888888" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
+                <Button x:Name="MinButton" Content="—" Width="22" Margin="2,0,0,0" Click="MinButton_Click"
+                        Background="#66000000" Foreground="White" BorderThickness="0" FontSize="11"/>
+                <Button x:Name="MaxButton" Content="□" Width="22" Margin="2,0,0,0" Click="MaxButton_Click"
+                        Background="#66000000" Foreground="White" BorderThickness="0" FontSize="11"/>
                 <Button x:Name="GoButton" Content="Go" Width="40" Margin="2,0,0,0" Click="GoButton_Click"
                         Background="#88000000" Foreground="White" BorderThickness="0"/>
                 <TextBox x:Name="UrlTextBox" Text="https://www.bilibili.com" 
@@ -35,7 +45,7 @@
                          KeyDown="UrlTextBox_KeyDown"/>
             </DockPanel>
         </Grid>
-        <Grid Grid.Row="1" Background="#40000000"
+        <Grid Grid.Row="2" Background="#40000000"
               MouseDown="WebViewGrid_MouseDown"
               MouseWheel="WebViewGrid_MouseWheel"
               MouseMove="WebViewGrid_MouseMove"
@@ -43,21 +53,21 @@
             <wv2:WebView2 x:Name="WebView" Margin="6,0,6,6"/>
         </Grid>
 
-        <Rectangle Grid.RowSpan="2" Name="ResizeTop" Height="6" VerticalAlignment="Top" Fill="#40000000"
+        <Rectangle Grid.RowSpan="3" Name="ResizeTop" Height="6" VerticalAlignment="Top" Fill="#40000000"
                    Cursor="SizeNS" MouseLeftButtonDown="ResizeMouseDown"/>
-        <Rectangle Grid.RowSpan="2" Name="ResizeBottom" Height="6" VerticalAlignment="Bottom" Fill="#40000000"
+        <Rectangle Grid.RowSpan="3" Name="ResizeBottom" Height="6" VerticalAlignment="Bottom" Fill="#40000000"
                    Cursor="SizeNS" MouseLeftButtonDown="ResizeMouseDown"/>
-        <Rectangle Grid.RowSpan="2" Name="ResizeLeft" Width="6" HorizontalAlignment="Left" Fill="#40000000"
+        <Rectangle Grid.RowSpan="3" Name="ResizeLeft" Width="6" HorizontalAlignment="Left" Fill="#40000000"
                    Cursor="SizeWE" MouseLeftButtonDown="ResizeMouseDown"/>
-        <Rectangle Grid.RowSpan="2" Name="ResizeRight" Width="6" HorizontalAlignment="Right" Fill="#40000000"
+        <Rectangle Grid.RowSpan="3" Name="ResizeRight" Width="6" HorizontalAlignment="Right" Fill="#40000000"
                    Cursor="SizeWE" MouseLeftButtonDown="ResizeMouseDown"/>
-        <Rectangle Grid.RowSpan="2" Name="ResizeTopLeft" Width="12" Height="12" VerticalAlignment="Top" HorizontalAlignment="Left"
+        <Rectangle Grid.RowSpan="3" Name="ResizeTopLeft" Width="12" Height="12" VerticalAlignment="Top" HorizontalAlignment="Left"
                    Fill="#40000000" Cursor="SizeNWSE" MouseLeftButtonDown="ResizeMouseDown"/>
-        <Rectangle Grid.RowSpan="2" Name="ResizeTopRight" Width="12" Height="12" VerticalAlignment="Top" HorizontalAlignment="Right"
+        <Rectangle Grid.RowSpan="3" Name="ResizeTopRight" Width="12" Height="12" VerticalAlignment="Top" HorizontalAlignment="Right"
                    Fill="#40000000" Cursor="SizeNESW" MouseLeftButtonDown="ResizeMouseDown"/>
-        <Rectangle Grid.RowSpan="2" Name="ResizeBottomLeft" Width="12" Height="12" VerticalAlignment="Bottom" HorizontalAlignment="Left"
+        <Rectangle Grid.RowSpan="3" Name="ResizeBottomLeft" Width="12" Height="12" VerticalAlignment="Bottom" HorizontalAlignment="Left"
                    Fill="#40000000" Cursor="SizeNESW" MouseLeftButtonDown="ResizeMouseDown"/>
-        <Rectangle Grid.RowSpan="2" Name="ResizeBottomRight" Width="12" Height="12" VerticalAlignment="Bottom" HorizontalAlignment="Right"
+        <Rectangle Grid.RowSpan="3" Name="ResizeBottomRight" Width="12" Height="12" VerticalAlignment="Bottom" HorizontalAlignment="Right"
                    Fill="#40000000" Cursor="SizeNWSE" MouseLeftButtonDown="ResizeMouseDown"/>
     </Grid>
 </Window>
