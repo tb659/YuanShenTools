@@ -11,6 +11,7 @@
         Opacity="0.6"
         WindowStartupLocation="CenterScreen"
         Loaded="Window_Loaded"
+        StateChanged="Window_StateChanged"
         Closing="Window_Closing">
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="0" ResizeBorderThickness="6" GlassFrameThickness="0"/>
@@ -22,22 +23,20 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" Background="#55000000">
-            <TextBlock Text="` 播放/暂停 | 5 后退10s | 6 前进10s | 7 透明度- | 8 透明度+ | 9 隐藏 | 0 书签 | - 跳过对话"
-                       Foreground="#AAAAAA" FontSize="11" Margin="6,2" TextTrimming="CharacterEllipsis"/>
+        <Grid Grid.Row="0" Background="#55000000" Cursor="SizeAll" MouseLeftButtonDown="LegendGrid_MouseDown">
+            <TextBlock x:Name="LegendText" Text="` 播放/暂停 | 5 后退10s | 6 前进10s | 7 透明度- | 8 透明度+ | 9 隐藏 | 0 沉浸 关 | - 跳过 | + 书签"
+                       Foreground="#AAAAAA" FontSize="11" Margin="6,6,6,2" TextTrimming="CharacterEllipsis"/>
         </Grid>
 
         <Grid Grid.Row="1" Background="#66000000">
-            <DockPanel Margin="4,2">
-                <Border Width="24" MouseLeftButtonDown="DragBar_MouseDown" Cursor="SizeAll"
-                        Background="#88000000" Margin="0,0,2,0">
-                    <TextBlock Text="⠿" Foreground="#888888" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                </Border>
-                <Button x:Name="MinButton" Content="—" Width="22" Margin="2,0,0,0" Click="MinButton_Click"
-                        Background="#66000000" Foreground="White" BorderThickness="0" FontSize="11"/>
-                <Button x:Name="MaxButton" Content="□" Width="22" Margin="2,0,0,0" Click="MaxButton_Click"
-                        Background="#66000000" Foreground="White" BorderThickness="0" FontSize="11"/>
-                <Button x:Name="GoButton" Content="Go" Width="40" Margin="2,0,0,0" Click="GoButton_Click"
+            <DockPanel Margin="4,2" LastChildFill="True">
+                <Button DockPanel.Dock="Right" x:Name="CloseButton" Content="✕" Width="22" Margin="2,0,0,0" Click="CloseButton_Click"
+                        Background="#88000000" Foreground="White" BorderThickness="0" FontSize="11"/>
+                <Button DockPanel.Dock="Right" x:Name="MaxButton" Content="□" Width="20" Margin="2,0,0,0" Click="MaxButton_Click"
+                        Background="#66000000" Foreground="White" BorderThickness="0" FontSize="10"/>
+                <Button DockPanel.Dock="Right" x:Name="MinButton" Content="—" Width="20" Margin="2,0,0,0" Click="MinButton_Click"
+                        Background="#66000000" Foreground="White" BorderThickness="0" FontSize="10"/>
+                <Button DockPanel.Dock="Right" x:Name="GoButton" Content="Go" Width="36" Margin="2,0,0,0" Click="GoButton_Click"
                         Background="#88000000" Foreground="White" BorderThickness="0"/>
                 <TextBox x:Name="UrlTextBox" Text="https://www.bilibili.com" 
                          FontSize="13" BorderThickness="0"
@@ -69,5 +68,34 @@
                    Fill="#40000000" Cursor="SizeNESW" MouseLeftButtonDown="ResizeMouseDown"/>
         <Rectangle Grid.RowSpan="3" Name="ResizeBottomRight" Width="12" Height="12" VerticalAlignment="Bottom" HorizontalAlignment="Right"
                    Fill="#40000000" Cursor="SizeNWSE" MouseLeftButtonDown="ResizeMouseDown"/>
+
+        <Grid Grid.RowSpan="3" x:Name="BookmarkOverlay" Visibility="Collapsed" Background="#AA000000">
+            <Border Background="#FF2D2D2D" Padding="16" Width="280" MaxHeight="300"
+                    HorizontalAlignment="Center" VerticalAlignment="Center" CornerRadius="8">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <DockPanel Grid.Row="0" Margin="0,0,0,8">
+                        <Button Content="添加" Width="50" Margin="4,0,0,0"
+                                Background="#FF444444" Foreground="White" BorderThickness="0"
+                                Click="BookmarkAdd_Click"/>
+                        <TextBox x:Name="BookmarkUrlTextBox" FontSize="13"
+                                 Background="#FF222222" Foreground="White" BorderThickness="0"/>
+                    </DockPanel>
+                    <ListBox x:Name="BookmarkListBox" Grid.Row="1"
+                             SelectionMode="Single" MouseDoubleClick="BookmarkList_DoubleClick"
+                             Background="#FF111111" Foreground="White" BorderThickness="0"/>
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,8,0,0">
+                        <Button Content="删除" Width="60" Margin="0,0,8,0" Click="BookmarkDelete_Click"
+                                Background="#FF444444" Foreground="White" BorderThickness="0"/>
+                        <Button Content="关闭" Width="60" Click="BookmarkClose_Click"
+                                Background="#FF444444" Foreground="White" BorderThickness="0"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
     </Grid>
 </Window>

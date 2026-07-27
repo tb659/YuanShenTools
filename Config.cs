@@ -12,6 +12,7 @@ namespace YuanShenTools
         public double Height { get; set; } = 360;
         public double Opacity { get; set; } = 0.5;
         public string LastUrl { get; set; } = "https://www.bilibili.com";
+        public int WindowState { get; set; } = 0; // 0=Normal, 1=Minimized, 2=Maximized
         public List<string> Bookmarks { get; set; } = [];
     }
 
@@ -68,18 +69,22 @@ namespace YuanShenTools
             }
             window.Width = config.Width;
             window.Height = config.Height;
+            if (config.WindowState == 2)
+                window.WindowState = System.Windows.WindowState.Maximized;
         }
 
         public static WindowConfig FromWindow(Window window, string lastUrl, double dwmAlpha)
         {
+            var bounds = window.RestoreBounds;
             return new WindowConfig
             {
-                Left = window.Left,
-                Top = window.Top,
-                Width = window.Width,
-                Height = window.Height,
+                Left = bounds.Left,
+                Top = bounds.Top,
+                Width = bounds.Width,
+                Height = bounds.Height,
                 Opacity = dwmAlpha,
                 LastUrl = lastUrl,
+                WindowState = (int)window.WindowState,
             };
         }
     }

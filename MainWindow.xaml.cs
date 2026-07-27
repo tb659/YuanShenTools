@@ -9,8 +9,9 @@ namespace YuanShenTools
     {
         private HotKeyManager? _hotKeyManager;
         private AutoSkipService? _autoSkipService;
-        private BookmarkWindow? _bookmarkWindow;
         private bool _isHidden;
+        private bool _immersive;
+        private string _currentUrl = "https://www.bilibili.com";
 
         private const uint VK_5 = 0x35;
         private const uint VK_6 = 0x36;
@@ -20,6 +21,7 @@ namespace YuanShenTools
         private const uint VK_0 = 0x30;
         private const uint VK_OEM_3 = 0xC0;
         private const uint VK_OEM_MINUS = 0xBD;
+        private const uint VK_OEM_PLUS = 0xBB;
         private const uint MOD_NONE = 0x0000;
 
         private const int ID_PLAY_PAUSE = 1;
@@ -28,8 +30,12 @@ namespace YuanShenTools
         private const int ID_OPACITY_DOWN = 4;
         private const int ID_OPACITY_UP = 5;
         private const int ID_HIDE_SHOW = 6;
-        private const int ID_BOOKMARK = 7;
+        private const int ID_IMMERSIVE = 7;
         private const int ID_AUTO_SKIP = 8;
+        private const int ID_BOOKMARK = 9;
+
+        private const int GWL_EXSTYLE = -20;
+        private const int WS_EX_TRANSPARENT = 0x00000020;
 
         public MainWindow()
         {
@@ -54,7 +60,12 @@ namespace YuanShenTools
             UrlTextBox.Text = lastUrl;
             WebView.CoreWebView2.Navigate(lastUrl);
 
-            WebView.CoreWebView2.NavigationCompleted += (_, _) => MakePageTransparent();
+            WebView.CoreWebView2.NavigationCompleted += (_, _) =>
+            {
+                MakePageTransparent();
+                _currentUrl = WebView.CoreWebView2.Source;
+                UrlTextBox.Text = _currentUrl;
+            };
 
             _autoSkipService = new AutoSkipService(ExecuteScriptAsync);
             _autoSkipService.StatusChanged += (_, enabled) =>
@@ -70,8 +81,7 @@ namespace YuanShenTools
         {
             _autoSkipService?.Stop();
             _hotKeyManager?.Dispose();
-            _bookmarkWindow?.Close();
-            var cfg = Config.FromWindow(this, UrlTextBox.Text, Opacity);
+            var cfg = Config.FromWindow(this, _currentUrl, Opacity);
             Config.Save(cfg);
         }
 
@@ -123,8 +133,9 @@ namespace YuanShenTools
                 if (!_isHidden) Activate();
             });
 
-            _hotKeyManager.Register(ID_BOOKMARK, MOD_NONE, VK_0, () => ShowBookmarkWindow());
+            _hotKeyManager.Register(ID_IMMERSIVE, MOD_NONE, VK_0, () => ToggleImmersive());
             _hotKeyManager.Register(ID_AUTO_SKIP, MOD_NONE, VK_OEM_MINUS, () => _autoSkipService?.Toggle());
+            _hotKeyManager.Register(ID_BOOKMARK, MOD_NONE, VK_OEM_PLUS, () => ShowBookmarkOverlay());
         }
 
         private async void MakePageTransparent()
@@ -173,20 +184,91 @@ document.head.appendChild(s);
             ExecuteScript($"document.elementFromPoint({x}, {y})?.dispatchEvent(new MouseEvent('mousemove', {{clientX: {x}, clientY: {y}}}));");
         }
 
-        private void ShowBookmarkWindow()
+        private void ToggleImmersive()
         {
-            if (_bookmarkWindow != null && _bookmarkWindow.IsVisible)
+            _immersive = !_immersive;
+            var hwnd = new WindowInteropHelper(this).Handle;
+            var exStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
+            if (_immersive)
+                exStyle |= WS_EX_TRANSPARENT;
+            else
+                exStyle &= ~WS_EX_TRANSPARENT;
+            SetWindowLong(hwnd, GWL_EXSTYLE, exStyle);
+            Title = _immersive ? "原神跟跑 [沉浸: 开]" : "原神跟跑 [沉浸: 关]";
+            LegendText.Text = _immersive
+                ? " ` 播放/暂停 | 5 后退 10s | 6 前进 10s | 7 透明度 - | 8 透明度 + | 9 隐藏 | 0 沉浸 开 | - 跳过 | + 书签"
+                : " ` 播放/暂停 | 5 后退 10s | 6 前进 10s | 7 透明度 - | 8 透明度 + | 9 隐藏 | 0 沉浸 关 | - 跳过 | + 书签";
+        }
+
+        private void ShowBookmarkOverlay()
+        {
+            WebView.Visibility = Visibility.Collapsed;
+            BookmarkOverlay.Visibility = Visibility.Visible;
+            LoadBookmarkList();
+        }
+
+        private void HideBookmarkOverlay()
+        {
+            BookmarkOverlay.Visibility = Visibility.Collapsed;
+            WebView.Visibility = Visibility.Visible;
+        }
+
+        private void LoadBookmarkList()
+        {
+            var cfg = Config.Load();
+            BookmarkListBox.Items.Clear();
+            foreach (var url in cfg.Bookmarks)
+                BookmarkListBox.Items.Add(new BookmarkItem { Title = url, Url = url });
+        }
+
+        private void BookmarkAdd_Click(object sender, RoutedEventArgs e)
+        {
+            var url = BookmarkUrlTextBox.Text.Trim();
+            if (string.IsNullOrEmpty(url)) return;
+            if (!url.StartsWith("http://") && !url.StartsWith("https://"))
+                url = "https://" + url;
+
+            var cfg = Config.Load();
+            if (!cfg.Bookmarks.Contains(url))
             {
-                _bookmarkWindow.Activate();
-                return;
+                cfg.Bookmarks.Add(url);
+                Config.Save(cfg);
+                BookmarkListBox.Items.Add(new BookmarkItem { Title = url, Url = url });
             }
-            _bookmarkWindow = new BookmarkWindow { Owner = this };
-            _bookmarkWindow.BookmarkSelected += url =>
+            BookmarkUrlTextBox.Clear();
+        }
+
+        private void BookmarkList_DoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (BookmarkListBox.SelectedItem is BookmarkItem item)
             {
-                WebView.CoreWebView2.Navigate(url);
-                UrlTextBox.Text = url;
-            };
-            _bookmarkWindow.Show();
+                WebView.CoreWebView2?.Navigate(item.Url);
+                UrlTextBox.Text = item.Url;
+                HideBookmarkOverlay();
+            }
+        }
+
+        private void BookmarkDelete_Click(object sender, RoutedEventArgs e)
+        {
+            if (BookmarkListBox.SelectedItem is BookmarkItem item)
+            {
+                var cfg = Config.Load();
+                cfg.Bookmarks.Remove(item.Url);
+                Config.Save(cfg);
+                BookmarkListBox.Items.Remove(item);
+            }
+        }
+
+        private void BookmarkClose_Click(object sender, RoutedEventArgs e)
+        {
+            HideBookmarkOverlay();
+        }
+
+        private class BookmarkItem
+        {
+            public required string Title { get; set; }
+            public required string Url { get; set; }
+            public override string ToString() => Title;
         }
 
         private async void ExecuteScript(string script)
@@ -352,9 +434,53 @@ document.head.appendChild(s);
                 SWP_NOZORDER);
         }
 
+        private void LegendGrid_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton != MouseButton.Left) return;
+            _isDragging = true;
+            _dragStartLeft = Left;
+            _dragStartTop = Top;
+            var hwnd = new WindowInteropHelper(this).Handle;
+            SetCapture(hwnd);
+            GetCursorPos(out var start);
+            var startX = start.X; var startY = start.Y;
+
+            _dragTimer = new System.Windows.Threading.DispatcherTimer();
+            _dragTimer.Interval = TimeSpan.FromMilliseconds(10);
+            _dragTimer.Tick += (s, args) =>
+            {
+                if (!_isDragging) { _dragTimer?.Stop(); return; }
+                if ((GetAsyncKeyState(VK_LBUTTON) & 0x8000) == 0)
+                {
+                    _isDragging = false;
+                    ReleaseCapture();
+                    _dragTimer?.Stop();
+                    return;
+                }
+                GetCursorPos(out var cur);
+                var dx = cur.X - startX;
+                var dy = cur.Y - startY;
+                SetWindowPos(hwnd, IntPtr.Zero,
+                    (int)(_dragStartLeft + dx), (int)(_dragStartTop + dy),
+                    0, 0, SWP_NOSIZE | SWP_NOZORDER);
+            };
+            _dragTimer.Start();
+        }
+
+        private void CloseButton_Click(object sender, RoutedEventArgs e) => Close();
         private void MinButton_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
-        private void MaxButton_Click(object sender, RoutedEventArgs e) =>
+        private void MaxButton_Click(object sender, RoutedEventArgs e)
+        {
             WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+            UpdateMaxButtonContent();
+        }
+
+        private void Window_StateChanged(object? sender, EventArgs e) => UpdateMaxButtonContent();
+
+        private void UpdateMaxButtonContent()
+        {
+            MaxButton.Content = WindowState == WindowState.Maximized ? "❐" : "□";
+        }
 
         private void GoButton_Click(object sender, RoutedEventArgs e) => NavigateToUrl();
         private void UrlTextBox_KeyDown(object sender, KeyEventArgs e)
