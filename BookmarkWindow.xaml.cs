@@ -2,8 +2,13 @@ using System.Windows;
 
 namespace YuanShenTools
 {
+    /// <summary>
+    /// 书签管理窗口（当前未使用，书签功能已集成到主窗口覆盖层）
+    /// 保留以备后续可能改为独立窗口。
+    /// </summary>
     public partial class BookmarkWindow : Window
     {
+        /// <summary>当用户双击书签时触发，传入选中书签的 URL</summary>
         public event Action<string>? BookmarkSelected;
 
         public BookmarkWindow()
@@ -12,6 +17,7 @@ namespace YuanShenTools
             LoadBookmarks();
         }
 
+        /// <summary>从配置加载书签列表</summary>
         private void LoadBookmarks()
         {
             var config = Config.Load();
@@ -22,6 +28,7 @@ namespace YuanShenTools
             }
         }
 
+        /// <summary>添加书签（将当前输入框 URL 保存到配置）</summary>
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
             var url = NewUrlTextBox.Text.Trim();
@@ -42,6 +49,7 @@ namespace YuanShenTools
             NewUrlTextBox.Clear();
         }
 
+        /// <summary>双击书签项触发导航</summary>
         private void BookmarkList_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             if (BookmarkList.SelectedItem is BookmarkItem item)
@@ -50,6 +58,7 @@ namespace YuanShenTools
             }
         }
 
+        /// <summary>删除选中书签</summary>
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
             if (BookmarkList.SelectedItem is BookmarkItem item)
@@ -61,6 +70,7 @@ namespace YuanShenTools
             }
         }
 
+        /// <summary>书签项数据模型</summary>
         private class BookmarkItem
         {
             public required string Title { get; set; }

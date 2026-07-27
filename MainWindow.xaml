@@ -1,4 +1,10 @@
-﻿<Window x:Class="YuanShenTools.MainWindow"
+﻿<!--
+    原神跟跑 — 主窗口
+    透明悬浮覆盖层，嵌入 B 站 WebView2，支持全局热键操控视频。
+    布局：三行 — ① 热键提示栏（可拖拽） ② URL 栏（按钮 + 输入框） ③ 网页内容区
+    缩放边框和书签覆盖层在 Z 序最上层。
+-->
+<Window x:Class="YuanShenTools.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
@@ -16,6 +22,8 @@
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="0" ResizeBorderThickness="6" GlassFrameThickness="0"/>
     </WindowChrome.WindowChrome>
+
+    <!-- 根 Grid：三行布局 -->
     <Grid Background="Transparent">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -23,35 +31,44 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+        <!-- 行 0：热键提示栏（可拖拽） -->
         <Grid Grid.Row="0" Background="#333333" Cursor="SizeAll" MouseLeftButtonDown="LegendGrid_MouseDown">
-            <TextBlock x:Name="LegendText" Text="` 播放/暂停 | 5 后退10s | 6 前进10s | 7 透明度- | 8 透明度+ | 9 隐藏 | 0 沉浸 关 | - 跳过 | + 书签"
+            <TextBlock x:Name="LegendText"
+                       Text="` 播放/暂停 | 5 后退10s | 6 前进10s | 7 透明度- | 8 透明度+ | 9 隐藏 | 0 沉浸 关 | - 跳过 | + 书签"
                        Foreground="#AAAAAA" FontSize="11" Margin="6,6,6,2" TextTrimming="CharacterEllipsis"/>
         </Grid>
 
+        <!-- 行 1：URL 工具栏 -->
         <Grid Grid.Row="1" Background="#333333">
             <DockPanel Margin="4,2" LastChildFill="True">
-                <Button DockPanel.Dock="Right" x:Name="CloseButton" Content="✕" Width="22" Margin="2,0,0,0" Click="CloseButton_Click"
-                        Background="#555555" Foreground="White" BorderThickness="0" FontSize="11"/>
-                <Button DockPanel.Dock="Right" x:Name="MaxButton" Content="□" Width="20" Margin="2,0,0,0" Click="MaxButton_Click"
-                        Background="#333333" Foreground="White" BorderThickness="0" FontSize="10"/>
-                <Button DockPanel.Dock="Right" x:Name="MinButton" Content="—" Width="20" Margin="2,0,0,0" Click="MinButton_Click"
-                        Background="#333333" Foreground="White" BorderThickness="0" FontSize="10"/>
-                <Button DockPanel.Dock="Right" x:Name="GoButton" Content="Go" Width="36" Margin="2,0,0,0" Click="GoButton_Click"
-                        Background="#555555" Foreground="White" BorderThickness="0"/>
-                <TextBox x:Name="UrlTextBox" Text="https://www.bilibili.com" 
+                <!-- 右侧按钮（逆序 DockPanel.Dock="Right" 实现从右向左排列） -->
+                <Button DockPanel.Dock="Right" x:Name="CloseButton" Content="✕" Width="22" Margin="2,0,0,0"
+                        Click="CloseButton_Click" Background="#555555" Foreground="White" BorderThickness="0" FontSize="11"/>
+                <Button DockPanel.Dock="Right" x:Name="MaxButton" Content="□" Width="20" Margin="2,0,0,0"
+                        Click="MaxButton_Click" Background="#333333" Foreground="White" BorderThickness="0" FontSize="10"/>
+                <Button DockPanel.Dock="Right" x:Name="MinButton" Content="—" Width="20" Margin="2,0,0,0"
+                        Click="MinButton_Click" Background="#333333" Foreground="White" BorderThickness="0" FontSize="10"/>
+                <Button DockPanel.Dock="Right" x:Name="GoButton" Content="Go" Width="36" Margin="2,0,0,0"
+                        Click="GoButton_Click" Background="#555555" Foreground="White" BorderThickness="0"/>
+                <!-- URL 输入框（填满剩余空间） -->
+                <TextBox x:Name="UrlTextBox" Text="https://www.bilibili.com"
                          FontSize="13" BorderThickness="0"
                          Background="#222222" Foreground="White"
                          KeyDown="UrlTextBox_KeyDown"/>
             </DockPanel>
         </Grid>
+
+        <!-- 行 2：WebView 内容区 -->
         <Grid Grid.Row="2" Background="#151515"
               MouseDown="WebViewGrid_MouseDown"
               MouseWheel="WebViewGrid_MouseWheel"
               MouseMove="WebViewGrid_MouseMove"
               Cursor="Arrow">
+            <!-- Margin 留出边距供缩放矩形接收点击 -->
             <wv2:WebView2 x:Name="WebView" Margin="6,0,6,6"/>
         </Grid>
 
+        <!-- 缩放边框（Z 序最上层，6px 宽/高） -->
         <Rectangle Grid.RowSpan="3" Name="ResizeTop" Height="6" VerticalAlignment="Top" Fill="#151515"
                    Cursor="SizeNS" MouseLeftButtonDown="ResizeMouseDown"/>
         <Rectangle Grid.RowSpan="3" Name="ResizeBottom" Height="6" VerticalAlignment="Bottom" Fill="#151515"
@@ -69,7 +86,9 @@
         <Rectangle Grid.RowSpan="3" Name="ResizeBottomRight" Width="12" Height="12" VerticalAlignment="Bottom" HorizontalAlignment="Right"
                    Fill="#151515" Cursor="SizeNWSE" MouseLeftButtonDown="ResizeMouseDown"/>
 
+        <!-- 书签覆盖层（默认隐藏，按 + 显示） -->
         <Grid Grid.RowSpan="3" x:Name="BookmarkOverlay" Visibility="Collapsed" Background="#000000">
+            <!-- 居中面板 -->
             <Border Background="#2D2D2D" Padding="16" Width="280" MaxHeight="300"
                     HorizontalAlignment="Center" VerticalAlignment="Center" CornerRadius="8">
                 <Grid>
@@ -78,6 +97,7 @@
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
+                    <!-- URL 输入 + 添加按钮 -->
                     <DockPanel Grid.Row="0" Margin="0,0,0,8">
                         <Button Content="添加" Width="50" Margin="4,0,0,0"
                                 Background="#444444" Foreground="White" BorderThickness="0"
@@ -85,9 +105,11 @@
                         <TextBox x:Name="BookmarkUrlTextBox" FontSize="13"
                                  Background="#222222" Foreground="White" BorderThickness="0"/>
                     </DockPanel>
+                    <!-- 书签列表 -->
                     <ListBox x:Name="BookmarkListBox" Grid.Row="1"
                              SelectionMode="Single" MouseDoubleClick="BookmarkList_DoubleClick"
                              Background="#111111" Foreground="White" BorderThickness="0"/>
+                    <!-- 操作按钮 -->
                     <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,8,0,0">
                         <Button Content="删除" Width="60" Margin="0,0,8,0" Click="BookmarkDelete_Click"
                                 Background="#444444" Foreground="White" BorderThickness="0"/>
